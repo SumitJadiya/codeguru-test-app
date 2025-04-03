@@ -21,6 +21,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up JDK 21
+        uses: actions/setup-java@v1
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -28,11 +34,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Build Java Project
+        run: ./gradlew build -x test  # Skipping tests for faster builds
+
       - name: Run Amazon CodeGuru Reviewer
         uses: aws-actions/codeguru-reviewer@v1.1
         with:
           s3_bucket: codeguru-reviewer-githubaction
-
+          build_path: build/libs  # Upload compiled JARs for analysis
 
       - name: Upload review result
         if: ${{ github.event_name != 'push' }}
