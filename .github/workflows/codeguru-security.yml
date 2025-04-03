@@ -1,0 +1,46 @@
+name: CodeGuru Security Example
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - feat/github-actions
+
+permissions:
+  id-token: write
+  security-events: write
+  actions: read
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Respository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: CodeGuru Security
+        uses: aws-actions/codeguru-security@v1
+        with:
+          source_path: .
+          aws_region: region
+          fail_on_severity: Critical
+      - name: Print findings
+        run: |
+          ls -l
+          cat codeguru-security-results.sarif.json
+
+      - name: Upload result
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: codeguru-security-results.sarif.json
