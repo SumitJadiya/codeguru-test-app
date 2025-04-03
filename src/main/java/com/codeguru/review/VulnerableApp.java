@@ -13,9 +13,6 @@ import java.sql.Statement;
 
 public class VulnerableApp {
 
-    // 1. **Hardcoded Credentials** (CWE-798)
-    private static final String DB_USER = "admin";
-    private static final String DB_PASSWORD = "password123";
 
     public static void main(String[] args) {
         String userInput = "'; DROP TABLE users; --"; // 2. **SQL Injection** (CWE-89)
